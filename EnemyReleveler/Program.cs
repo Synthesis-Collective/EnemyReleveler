@@ -5,9 +5,7 @@ using System.Linq;
 using Mutagen.Bethesda;
 using Mutagen.Bethesda.Synthesis;
 using Mutagen.Bethesda.Skyrim;
-using Newtonsoft.Json.Linq;
 using Alphaleonis.Win32.Filesystem;
-using Mutagen.Bethesda.FormKeys.SkyrimSE;
 using Newtonsoft.Json;
 using Noggog;
 
@@ -93,14 +91,14 @@ namespace EnemyReleveler
 
                 //Start releveling
                 var npc = getter.DeepCopy();
-                if (npc.Configuration.Flags.HasFlag(NpcConfiguration.Flag.AutoCalcStats))
+                if (npc.Configuration.Level is IPcLevelMult)
                 {
                     EditValue(npc, LevelType.MinLevel, rule);
                     EditValue(npc, LevelType.MaxLevel, rule);
                 }
                 else
                 {
-                    EditValue(npc, LevelType.Level, rule);                    
+                    EditValue(npc, LevelType.Level, rule);
                 }
                 state.PatchMod.Npcs.GetOrAddAsOverride(npc);
             }
@@ -110,7 +108,7 @@ namespace EnemyReleveler
 
         public static void EditValue(INpc npc, LevelType levelType, int[][] rule)
         {
-            short currentLevel = 1;
+            decimal currentLevel = 1;
             switch (levelType)
             {
                 case LevelType.MinLevel:
@@ -128,7 +126,7 @@ namespace EnemyReleveler
                 default:
                     break;
             }
-            int newLevel = ((currentLevel - rule[0][0]) / (rule[0][1] - rule[0][0])) * (rule[1][1] - rule[1][0]) + rule[1][0];
+            decimal newLevel = Math.Round(((currentLevel - rule[0][0]) / (rule[0][1] - rule[0][0])) * (rule[1][1] - rule[1][0]) + rule[1][0]);
 
             if (newLevel < 1)
             {
