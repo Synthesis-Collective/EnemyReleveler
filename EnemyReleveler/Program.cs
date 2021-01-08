@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Mutagen.Bethesda;
 using Mutagen.Bethesda.Synthesis;
 using Mutagen.Bethesda.Skyrim;
@@ -40,21 +41,19 @@ namespace EnemyReleveler
                     new int[] {0, 0}
                 };
 
-        public static int Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
-            return SynthesisPipeline.Instance.Patch<ISkyrimMod, ISkyrimModGetter>(
-                args,
-                patcher: RunPatch,
-                new UserPreferences
-                {
-                    ActionsForEmptyArgs = new RunDefaultPatcher
+            return await SynthesisPipeline.Instance.AddPatch<ISkyrimMod, ISkyrimModGetter>(RunPatch).Run(args, new RunPreferences() {
+                    ActionsForEmptyArgs = new RunDefaultPatcher()
                     {
                         IdentifyingModKey = "enemies_releveled.esp",
-                        TargetRelease = GameRelease.SkyrimSE
+                        TargetRelease = GameRelease.SkyrimSE,
+                        BlockAutomaticExit = true,
                     }
                 });
         }
-        public static void RunPatch(SynthesisState<ISkyrimMod, ISkyrimModGetter> state)
+
+        public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             //set up rules
             var creatureRulesPath = Path.Combine(state.ExtraSettingsDataPath, "enemy_rules.json");
