@@ -8,6 +8,7 @@ using Mutagen.Bethesda.Skyrim;
 using Newtonsoft.Json;
 using Noggog;
 using System.IO;
+using Mutagen.Bethesda.FormKeys.SkyrimSE;
 
 namespace EnemyReleveler
 {
@@ -17,23 +18,25 @@ namespace EnemyReleveler
         MinLevel,
         Level
     }
+
     public class Program
     {
-        public static List<String> underleveledNpcs = new List<String>();
-        public static List<String> overleveledNpcs = new List<String>();
-        public static List<String> lowPoweredNpcs = new List<String>();
-        public static List<String> highPoweredNpcs = new List<String>();
+        public static List<string> underleveledNpcs = new();
+        public static List<string> overleveledNpcs = new();
+        public static List<string> lowPoweredNpcs = new();
+        public static List<string> highPoweredNpcs = new();
 
-        public static string[] npcsToIgnore = new string[]{
-                "MQ101Bear",
-                "WatchesTheRootsCorpse",
-                "BreyaCorpse",
-                "WatchesTheRoots",
-                "Drennen",
-                "Breya",
-                "dunHunterBear",
-                "DLC1HowlSummonWerewolf"
-            };
+        public static HashSet<IFormLinkGetter<INpcGetter>> npcsToIgnore = new()
+        {
+            Skyrim.Npc.MQ101Bear,
+            Skyrim.Npc.WatchesTheRootsCorpse,
+            Skyrim.Npc.BreyaCorpse,
+            Skyrim.Npc.WatchesTheRoots,
+            Skyrim.Npc.Drennen,
+            Skyrim.Npc.Breya,
+            Skyrim.Npc.dunHunterBear,
+            Dawnguard.Npc.DLC1HowlSummonWerewolf,
+        };
 
         public static int[][] rule = new int[][]{
                     new int[] {0, 0},
@@ -44,16 +47,8 @@ namespace EnemyReleveler
         {
             return await SynthesisPipeline.Instance
                 .AddPatch<ISkyrimMod, ISkyrimModGetter>(RunPatch)
-                .Run(args, 
-                new RunPreferences() 
-                {
-                    ActionsForEmptyArgs = new RunDefaultPatcher()
-                    {
-                        IdentifyingModKey = "enemies_releveled.esp",
-                        TargetRelease = GameRelease.SkyrimSE,
-                        BlockAutomaticExit = true,
-                    }
-                });
+                .SetTypicalOpen(GameRelease.SkyrimSE, "enemies_releveled.esp")
+                .Run(args);
         }
 
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
@@ -68,13 +63,14 @@ namespace EnemyReleveler
 
             Dictionary<string, int[][]> enemyRules = JsonConvert.DeserializeObject<Dictionary<string, int[][]>>(File.ReadAllText(creatureRulesPath));
 
-
-
-            foreach (INpcGetter getter in state.LoadOrder.PriorityOrder.Npc().WinningOverrides())
+            foreach (var getter in state.LoadOrder.PriorityOrder.Npc().WinningOverrides())
             {
                 //filter NPCs
-                if (npcsToIgnore.Contains<String>(getter.EditorID ?? "") ||
-                getter.Configuration.TemplateFlags.HasFlag(NpcConfiguration.TemplateFlag.Stats)) continue;
+                if (npcsToIgnore.Contains(getter) 
+                    || getter.Configuration.TemplateFlags.HasFlag(NpcConfiguration.TemplateFlag.Stats))
+                {
+                    continue;
+                }
 
                 bool skip = true;
 
