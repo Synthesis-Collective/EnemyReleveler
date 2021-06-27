@@ -76,7 +76,8 @@ namespace EnemyReleveler
 
                 foreach (var rank in getter.Factions)
                 {
-                    var faction = rank.Faction.Resolve(state.LinkCache)?.EditorID ?? "";
+                    if(!rank.Faction.TryResolve(state.LinkCache, out var factionRecord)) continue;
+                    var faction = factionRecord.EditorID ?? "";
                     if (enemyRules.ContainsKey(faction))
                     {
                         skip = false;
