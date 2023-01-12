@@ -66,7 +66,7 @@ namespace EnemyReleveler
             foreach (var getter in state.LoadOrder.PriorityOrder.Npc().WinningOverrides())
             {
                 //filter NPCs
-                if (npcsToIgnore.Contains(getter) 
+                if (npcsToIgnore.Contains(getter)
                     || getter.Configuration.TemplateFlags.HasFlag(NpcConfiguration.TemplateFlag.Stats))
                 {
                     continue;
@@ -76,7 +76,7 @@ namespace EnemyReleveler
 
                 foreach (var rank in getter.Factions)
                 {
-                    if(!rank.Faction.TryResolve(state.LinkCache, out var factionRecord)) continue;
+                    if (!rank.Faction.TryResolve(state.LinkCache, out var factionRecord)) continue;
                     var faction = factionRecord.EditorID ?? "";
                     if (enemyRules.ContainsKey(faction))
                     {
@@ -125,7 +125,14 @@ namespace EnemyReleveler
                 default:
                     break;
             }
-            decimal newLevel = Math.Round(((currentLevel - rule[0][0]) / (rule[0][1] - rule[0][0])) * (rule[1][1] - rule[1][0]) + rule[1][0]);
+            double newLevel =
+                Math.Round(
+                        Math.Pow(
+                            (double)(currentLevel - rule[0][0]) / (rule[0][1] - rule[0][0])
+                        , 1.5)
+                        * (rule[1][1] - rule[1][0]
+                    )
+                    + rule[1][0]);
 
             if (newLevel < 1)
             {
