@@ -125,14 +125,8 @@ namespace EnemyReleveler
                 default:
                     break;
             }
-            double newLevel =
-                Math.Round(
-                        Math.Pow(
-                            (double)(currentLevel - rule[0][0]) / (rule[0][1] - rule[0][0])
-                        , 1.5)
-                        * (rule[1][1] - rule[1][0]
-                    )
-                    + rule[1][0]);
+            decimal newLevel = Math.Round(
+                ((currentLevel - rule[0][0]) / Math.Max(rule[0][1] - rule[0][0], 1)) * (rule[1][1] - rule[1][0]) + rule[1][0]);
 
             if (newLevel < 1)
             {
