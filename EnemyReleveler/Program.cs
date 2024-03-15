@@ -58,8 +58,7 @@ namespace EnemyReleveler
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             //set up rules
-            string creatureRulesPath = Settings.EnemyRulesSettings.UseLocalFile ?
-                Settings.EnemyRulesSettings.FilePath : Path.Combine(state.ExtraSettingsDataPath, "enemy_rules.json");
+            var creatureRulesPath = Path.Combine(state.ExtraSettingsDataPath, "enemy_rules.json");
 
             if (!File.Exists(creatureRulesPath))
             {
@@ -68,8 +67,7 @@ namespace EnemyReleveler
 
             Dictionary<string, int[][]> enemyRules = JsonConvert.DeserializeObject<Dictionary<string, int[][]>>(File.ReadAllText(creatureRulesPath));
 
-            Console.WriteLine(Settings.EnemyRulesSettings.UseLocalFile?
-                $"Using enemy rules from {creatureRulesPath}." : "Using default enemy rules.");
+            Console.WriteLine($"Using enemy rules from {creatureRulesPath}.");
 
             foreach (var getter in state.LoadOrder.PriorityOrder.Npc().WinningOverrides())
             {
