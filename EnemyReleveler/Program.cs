@@ -105,7 +105,7 @@ namespace EnemyReleveler
                 {
                     EditValue(npc, LevelType.Level, rule);
                 }
-                state.PatchMod.Npcs.GetOrAddAsOverride(npc);
+                state.PatchMod.Npcs.Set(npc);
             }
             printWarnings();
         }
